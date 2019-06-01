@@ -38,7 +38,7 @@ class ChatPage extends StatelessWidget {
                           Text(
                             friend.name,
                             style: TextStyle(
-                              color: Colors.white,
+                              color: Colors.black,
                               fontSize: 18.0,
                             ),
                           ),
@@ -68,11 +68,11 @@ class ChatPage extends StatelessWidget {
                       width: 42.0,
                       height: 42.0,
                       decoration: BoxDecoration(
-                        color: Color(0xFF414350),
+                        color: Color(0xFFffffff),
                         borderRadius: BorderRadius.circular(50.0),
                       ),
                       child: IconButton(
-                        color: Color(0xFF5791FB),
+                        color: Colors.blueAccent,
                         icon: Icon(Icons.call),
                         onPressed: () {},
                       ),
@@ -82,11 +82,11 @@ class ChatPage extends StatelessWidget {
                       width: 42.0,
                       height: 42.0,
                       decoration: BoxDecoration(
-                        color: Color(0xFF414350),
+                        color: Color(0xFFFFFFFF),
                         borderRadius: BorderRadius.circular(50.0),
                       ),
                       child: IconButton(
-                        color: Color(0xFF5791FB),
+                        color: Colors.blueAccent,
                         icon: Icon(Icons.videocam),
                         onPressed: () {},
                       ),
@@ -116,12 +116,12 @@ class ChatPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Padding(
-            padding: EdgeInsets.fromLTRB(20.0, 40.0, 20.0, 20.0),
+            padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 20.0),
             child: Text(
               'Chats',
               style: TextStyle(
                 color: Colors.blueAccent,
-                fontSize: 26.0,
+                fontSize: 22.0,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -129,18 +129,18 @@ class ChatPage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: Container(
-              decoration: BoxDecoration(
-                color: Color(0xFF414350),
-                borderRadius: BorderRadius.circular(5.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black54,
-                    offset: Offset(0.0, 1.5),
-                    blurRadius: 1.0,
-                    spreadRadius: -1.0,
-                  ),
-                ],
-              ),
+              // decoration: BoxDecoration(
+              //   color: Color(0xffffffff),
+              //   borderRadius: BorderRadius.circular(5.0),
+              //   boxShadow: [
+              //     BoxShadow(
+              //       color: Color(0xffffffff),
+              //       offset: Offset(0.0, 1.5),
+              //       blurRadius: 1.0,
+              //       spreadRadius: -1.0,
+              //     ),
+              //   ],
+              // ),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
@@ -187,7 +187,7 @@ class ChatPage extends StatelessWidget {
             child: Text(
               'Newsfeed',
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.blueAccent,
                 fontSize: 18.0,
               ),
             ),
@@ -198,13 +198,13 @@ class ChatPage extends StatelessWidget {
               decoration: InputDecoration(
                   hintText: 'Search your friends...',
                   hintStyle: TextStyle(
-                    color: Colors.white54,
+                    color: Colors.black38,
                   ),
                   filled: true,
-                  fillColor: Color(0xFF414350),
+                  fillColor: Color(0xFFFFFFFF),
                   suffixIcon: Icon(
                     Icons.search,
-                    color: Colors.white70,
+                    color: Colors.pinkAccent
                   ),
                   border: InputBorder.none),
             ),
@@ -240,7 +240,7 @@ class OnlinePersonAction extends StatelessWidget {
               borderRadius: BorderRadius.circular(50.0),
               border: Border.all(
                 width: 2.0,
-                color: const Color(0xFF558AED),
+                color: Colors.pinkAccent,
               ),
             ),
             child: Container(
@@ -266,7 +266,7 @@ class OnlinePersonAction extends StatelessWidget {
               borderRadius: BorderRadius.circular(5.0),
               border: Border.all(
                 width: 1.0,
-                color: const Color(0xFFFFFFFF),
+                color: const Color(0x00000000),
               ),
             ),
           ),

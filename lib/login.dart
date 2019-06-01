@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hack19/main_page.dart';
+import 'package:hack19/register.dart';
 
 class LoginPage extends StatefulWidget {
   static String tag = 'login-page';
@@ -23,7 +24,7 @@ class _LoginPageState extends State<LoginPage> {
             Padding(
               padding: EdgeInsets.all(20.0),
               child: Padding(
-                padding: const EdgeInsets.only(top: 80.0),
+                padding: const EdgeInsets.only(top: 30.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
@@ -38,7 +39,7 @@ class _LoginPageState extends State<LoginPage> {
                     Text(
                       'Login',
                       style: TextStyle(
-                        color: Colors.cyan,
+                        color: Colors.blueAccent,
                         fontSize: 24.0,
                         fontWeight: FontWeight.bold,
                       ),
@@ -61,7 +62,7 @@ class _LoginPageState extends State<LoginPage> {
                             decoration: InputDecoration(
                               suffixIcon: Icon(
                                 Icons.person,
-                                color: Colors.cyan,
+                                color: Colors.blueAccent,
                               ),
                               border: OutlineInputBorder(
                                 borderRadius: const BorderRadius.all(
@@ -73,7 +74,7 @@ class _LoginPageState extends State<LoginPage> {
                               contentPadding: EdgeInsets.all(20.0),
                               hintText: 'serdar.plt21@gmail.com',
                               hintStyle: TextStyle(
-                                color: Colors.cyan,
+                                color: Colors.blueAccent,
                                 fontSize: 16.0,
                                 fontFamily: 'Josefin',
                               ),
@@ -94,7 +95,7 @@ class _LoginPageState extends State<LoginPage> {
                             decoration: InputDecoration(
                               suffixIcon: Icon(
                                 Icons.lock,
-                                color: Colors.cyan,
+                                color: Colors.blueAccent,
                               ),
                               border: OutlineInputBorder(
                                 borderRadius: const BorderRadius.all(
@@ -106,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
                               contentPadding: EdgeInsets.all(20.0),
                               hintText: 'Enter Your Password',
                               hintStyle: TextStyle(
-                                color: Colors.cyan,
+                                color: Colors.blueAccent,
                                 fontSize: 16.0,
                                 fontFamily: 'Josefin',
                               ),
@@ -119,7 +120,7 @@ class _LoginPageState extends State<LoginPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: <Widget>[
                               RaisedButton(
-                                color: Color(0xFF00BCD4),
+                                color: Colors.blueAccent,
                                 padding:
                                     EdgeInsets.fromLTRB(46.0, 16.0, 46.0, 16.0),
                                 child: Text(
@@ -197,22 +198,20 @@ class _LoginPageState extends State<LoginPage> {
                             ],
                           ),
                           SizedBox(
-                            height: 90.0,
+                            height: 40.0,
                           ),
-                          Text(
-                            'Don\'t have an account?.',
-                            style: TextStyle(
-                              color: Colors.white70,
-                            ),
-                          ),
+                          
                           FlatButton(
                             child: Text(
                               'Sign Up!',
                               style: TextStyle(
-                                color: Color(0xFFFF627C),
+                                color: Colors.redAccent,
                               ),
                             ),
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.of(context).pushNamed(RegisterPage.tag);
+                          
+                            },
                           ),
                         ],
                       ),
