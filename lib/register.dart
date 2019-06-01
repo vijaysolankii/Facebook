@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:hack19/data/registration_data.dart';
 import 'package:hack19/login.dart';
 import 'package:hack19/main_page.dart';
+
+import 'modules/registration_presenter.dart';
 
 class RegisterPage extends StatefulWidget {
   static String tag = 'registration-page';
@@ -8,10 +11,15 @@ class RegisterPage extends StatefulWidget {
   _RegisterPageState createState() => _RegisterPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
-  String _email, _sifre;
-  bool giris;
+class _RegisterPageState extends State<RegisterPage> implements RegistrationViewContract{
+  RegistrationPresenter _presenter;
 
+  String _name,_password,_cpassword, _email;
+  bool giris;
+  bool _isLoading;
+  _RegisterPageState() {
+    _presenter = new RegistrationPresenter(this);
+  }
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -57,9 +65,9 @@ class _RegisterPageState extends State<RegisterPage> {
                             autocorrect: false,
                             keyboardType: TextInputType.emailAddress,
                             style: TextStyle(color: Colors.black),
-                            // validator: (str) =>
-                            //     !str.contains('@') ? 'Invalid E-Mail' : null,
-                            // onSaved: (str) => _email = str,
+                             validator: (str) =>
+                                 str.isEmpty ? 'Insert name' : null,
+                             onSaved: (str) => _name = str,
                             decoration: InputDecoration(
                               suffixIcon: Icon(
                                 Icons.person,
@@ -82,82 +90,15 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                           ),
                           SizedBox(
-                            height: 20.0,
-                          ),
-                          
-                          TextFormField(
-                            autocorrect: false,
-                            keyboardType: TextInputType.text,
-                            obscureText: true,
-                            style: TextStyle(color: Colors.black),
-                            // validator: (str) => str.length < 7
-                            //     ? 'Invalid Password'
-                            //     : null,
-                            // onSaved: (str) => _sifre = str,
-                            decoration: InputDecoration(
-                              suffixIcon: Icon(
-                                Icons.lock,
-                                color: Colors.blueAccent,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: const BorderRadius.all(
-                                  Radius.circular(60.0),
-                                ),
-                              ),
-                              filled: true,
-                              fillColor: Color(0xFFFFFFFF),
-                              contentPadding: EdgeInsets.all(20.0),
-                              hintText: 'Enter Your Password',
-                              hintStyle: TextStyle(
-                                color: Colors.blueAccent,
-                                fontSize: 16.0,
-                                fontFamily: 'Josefin',
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 16.0,
-                          ),
-                          TextFormField(
-                            autocorrect: false,
-                            keyboardType: TextInputType.text,
-                            obscureText: true,
-                            style: TextStyle(color: Colors.black),
-                            // validator: (str) => str.length < 7
-                            //     ? 'Invalid Password'
-                            //     : null,
-                            // onSaved: (str) => _sifre = str,
-                            decoration: InputDecoration(
-                              suffixIcon: Icon(
-                                Icons.lock,
-                                color: Colors.blueAccent,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: const BorderRadius.all(
-                                  Radius.circular(60.0),
-                                ),
-                              ),
-                              filled: true,
-                              fillColor: Color(0xFFFFFFFF),
-                              contentPadding: EdgeInsets.all(20.0),
-                              hintText: 'Enter above Password',
-                              hintStyle: TextStyle(
-                                color: Colors.blueAccent,
-                                fontSize: 16.0,
-                                fontFamily: 'Josefin',
-                              ),
-                            ),
-                          ),
-                          SizedBox(
                             height: 16.0,
                           ),
                           TextFormField(
                             autocorrect: false,
                             keyboardType: TextInputType.emailAddress,
                             style: TextStyle(color: Colors.black),
-                            // validator: (str) =>
-                            //     !str.contains('@') ? 'Invalid E-Mail' : null,
-                            // onSaved: (str) => _email = str,
+                            validator: (str) =>
+                            !str.contains('@') ? 'Invalid E-Mail' : null,
+                            onSaved: (str) => _email = str,
                             decoration: InputDecoration(
                               suffixIcon: Icon(
                                 Icons.mail,
@@ -172,6 +113,40 @@ class _RegisterPageState extends State<RegisterPage> {
                               fillColor: Color(0xFFFFFFFF),
                               contentPadding: EdgeInsets.all(20.0),
                               hintText: 'serdar.plt21@gmail.com',
+                              hintStyle: TextStyle(
+                                color: Colors.blueAccent,
+                                fontSize: 16.0,
+                                fontFamily: 'Josefin',
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 20.0,
+                          ),
+
+                          TextFormField(
+                            autocorrect: false,
+                            keyboardType: TextInputType.text,
+                            obscureText: true,
+                            style: TextStyle(color: Colors.black),
+                             validator: (str) => str.length < 7
+                                 ? 'Invalid Password'
+                                 : null,
+                             onSaved: (str) => _password = str,
+                            decoration: InputDecoration(
+                              suffixIcon: Icon(
+                                Icons.lock,
+                                color: Colors.blueAccent,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: const BorderRadius.all(
+                                  Radius.circular(60.0),
+                                ),
+                              ),
+                              filled: true,
+                              fillColor: Color(0xFFFFFFFF),
+                              contentPadding: EdgeInsets.all(20.0),
+                              hintText: 'Enter Your Password',
                               hintStyle: TextStyle(
                                 color: Colors.blueAccent,
                                 fontSize: 16.0,
@@ -205,48 +180,12 @@ class _RegisterPageState extends State<RegisterPage> {
 
                                   if (form.validate()) {
                                     form.save();
-                                    Navigator.of(context)
-                                        .pushNamed(SocialHome.tag);
+                                    changeThePage(context);
+                                  } else{
+                                    print("error");
                                   }
                                 },
                               ),
-                              // Row(
-                              //   children: <Widget>[
-                              //     InkWell(
-                              //       child: Container(
-                              //         width: 36.0,
-                              //         height: 36.0,
-                              //         decoration: BoxDecoration(
-                              //           borderRadius:
-                              //               BorderRadius.circular(36.0),
-                              //           image: DecorationImage(
-                              //             image:
-                              //                 AssetImage('images/google.png'),
-                              //           ),
-                              //         ),
-                              //       ),
-                              //       onTap: () {},
-                              //     ),
-                              //     SizedBox(
-                              //       width: 16.0,
-                              //     ),
-                              //     InkWell(
-                              //       child: Container(
-                              //         width: 36.0,
-                              //         height: 36.0,
-                              //         decoration: BoxDecoration(
-                              //           borderRadius:
-                              //               BorderRadius.circular(36.0),
-                              //           image: DecorationImage(
-                              //             image:
-                              //                 AssetImage('images/facebook.png'),
-                              //           ),
-                              //         ),
-                              //       ),
-                              //       onTap: () {},
-                              //     ),
-                              //   ],
-                              // ),
                             ],
                           ),
                           Row(
@@ -254,27 +193,17 @@ class _RegisterPageState extends State<RegisterPage> {
                             children: <Widget>[
                               FlatButton(
                                 child: Text(
-                                  'Forgot Password?',
+                                  'Sign in !',
                                   style: TextStyle(
-                                    color: Color(0xFFFF627C),
+                                    color: Colors.redAccent,
                                   ),
                                 ),
-                                onPressed: () {},
+                                onPressed: () {Navigator.of(context).pushNamed(LoginPage.tag);},
                               ),
                             ],
                           ),
                           SizedBox(
                             height: 90.0,
-                          ),
-                          
-                          FlatButton(
-                            child: Text(
-                              'Sign in!',
-                              style: TextStyle(
-                                color: Colors.redAccent,
-                              ),
-                            ),
-                            onPressed: () {Navigator.of(context).pushNamed(LoginPage.tag);},
                           ),
                         ],
                       ),
@@ -287,5 +216,30 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
       ),
     );
+  }
+  changeThePage(BuildContext context) {
+    print("name "+_name);
+    print("_email "+_email);
+    print("_password "+_password);
+    _isLoading = true;
+    _presenter.loadRegistration(_name,_email,_password,"");
+  }
+  @override
+  void onLoadRegistrationComplete(RegistrationData items) {
+    print("onLoadRegistrationComplete"+items.success);
+    // TODO: implement onLoadRegistrationComplete
+    Scaffold.of(context).showSnackBar(new SnackBar(
+      content: new Text(items.message),
+    ));
+    Navigator.of(context).pushNamed(LoginPage.tag);
+  }
+
+  @override
+  void onLoadRegistrationError(String error) {
+    print("onLoadRegistrationError "+error);
+    Scaffold.of(context).showSnackBar(new SnackBar(
+      content: new Text(error),
+    ));
+    // TODO: implement onLoadRegistrationError
   }
 }

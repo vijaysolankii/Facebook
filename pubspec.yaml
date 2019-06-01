@@ -26,7 +26,11 @@ dependencies:
   http: any
 #  simple_permissions: ^0.1.9
   file_picker: ^1.2.0
-#  connectivity: any
+  intl: ^0.15.8
+  path_provider: any
+  permission_handler: '^3.1.0'
+
+  #  connectivity: any
   shared_preferences: ^0.4.3
 
 dev_dependencies:

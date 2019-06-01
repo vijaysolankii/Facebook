@@ -46,7 +46,7 @@ class ChatPage extends StatelessWidget {
                           Text(
                             friend.msgTime,
                             style: TextStyle(
-                              color: Colors.white30,
+                              color: Colors.black38,
                             ),
                           ),
                         ],
@@ -55,7 +55,7 @@ class ChatPage extends StatelessWidget {
                       Text(
                         friend.message,
                         style: TextStyle(
-                          color: Colors.white70,
+                          color: Colors.black87,
                           fontSize: 16.0,
                         ),
                       ),

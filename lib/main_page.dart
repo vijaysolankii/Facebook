@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hack19/chats.dart';
 import 'package:hack19/home.dart';
+import 'package:hack19/user_list.dart';
 
 class SocialHome extends StatefulWidget {
   static String tag = 'ana-sayfa';
@@ -12,13 +13,14 @@ class _SocialHomeState extends State<SocialHome> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         backgroundColor: Colors.white,
         body: TabBarView(
           children: <Widget>[
             new HomePage(),
-            new ChatPage(),
+            new UserListPage(),
+            new UserListPage(),
             // new Container(color: Colors.green),
             // new Container(color: Colors.blue),
           ],
@@ -27,7 +29,8 @@ class _SocialHomeState extends State<SocialHome> {
           indicatorWeight: 1.0,
           tabs: [
             Tab(icon: Icon(Icons.home)),
-            Tab(icon: Icon(Icons.chat_bubble)),
+            Tab(icon: Icon(Icons.supervised_user_circle)),
+            Tab(icon: Icon(Icons.settings)),
             // Tab(icon: Icon(Icons.people)),
             // Tab(icon: Icon(Icons.settings)),
           ],
