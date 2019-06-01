@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:hack19/data/login_data.dart';
 import 'package:hack19/main_page.dart';
 import 'package:hack19/register.dart';
+
+import 'modules/login_presenter.dart';
+import 'utils/common.dart';
+import 'utils/preference.dart';
 
 class LoginPage extends StatefulWidget {
   static String tag = 'login-page';
@@ -8,11 +13,24 @@ class LoginPage extends StatefulWidget {
   _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  String _email, _sifre;
-  bool giris;
+class _LoginPageState extends State<LoginPage> implements LoginViewContract {
+  LoginPresenter _presenter;
+  bool _isLoading;
 
+  String _email, _sifre;
+//  FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
+  bool giris;
+  _LoginPageState() {
+    _presenter = new LoginPresenter(this);
+//    _firebaseMessaging.getToken().then((token) {
+//      print(token);
+//      this.token = token;
+//    });
+  }
   final _formKey = GlobalKey<FormState>();
+
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -53,12 +71,13 @@ class _LoginPageState extends State<LoginPage> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
                           TextFormField(
+                            controller: emailController,
                             autocorrect: false,
                             keyboardType: TextInputType.emailAddress,
                             style: TextStyle(color: Colors.black),
-                            // validator: (str) =>
-                            //     !str.contains('@') ? 'Invalid E-Mail' : null,
-                            // onSaved: (str) => _email = str,
+                             validator: (str) =>
+                                 !str.contains('@') ? 'Invalid E-Mail' : null,
+                             onSaved: (str) => _email = str,
                             decoration: InputDecoration(
                               suffixIcon: Icon(
                                 Icons.person,
@@ -84,14 +103,15 @@ class _LoginPageState extends State<LoginPage> {
                             height: 20.0,
                           ),
                           TextFormField(
+                            controller: passwordController,
                             autocorrect: false,
                             keyboardType: TextInputType.text,
                             obscureText: true,
                             style: TextStyle(color: Colors.black),
-                            // validator: (str) => str.length < 7
-                            //     ? 'Invalid Password'
-                            //     : null,
-                            // onSaved: (str) => _sifre = str,
+                             validator: (str) => str.length < 7
+                                 ? 'Invalid Password'
+                                 : null,
+                             onSaved: (str) => _sifre = str,
                             decoration: InputDecoration(
                               suffixIcon: Icon(
                                 Icons.lock,
@@ -139,48 +159,10 @@ class _LoginPageState extends State<LoginPage> {
 
                                   if (form.validate()) {
                                     form.save();
-                                    Navigator.of(context)
-                                        .pushNamed(SocialHome.tag);
+                                    changeThePage(context);
                                   }
                                 },
                               ),
-                              // Row(
-                              //   children: <Widget>[
-                              //     InkWell(
-                              //       child: Container(
-                              //         width: 36.0,
-                              //         height: 36.0,
-                              //         decoration: BoxDecoration(
-                              //           borderRadius:
-                              //               BorderRadius.circular(36.0),
-                              //           image: DecorationImage(
-                              //             image:
-                              //                 AssetImage('images/google.png'),
-                              //           ),
-                              //         ),
-                              //       ),
-                              //       onTap: () {},
-                              //     ),
-                              //     SizedBox(
-                              //       width: 16.0,
-                              //     ),
-                              //     InkWell(
-                              //       child: Container(
-                              //         width: 36.0,
-                              //         height: 36.0,
-                              //         decoration: BoxDecoration(
-                              //           borderRadius:
-                              //               BorderRadius.circular(36.0),
-                              //           image: DecorationImage(
-                              //             image:
-                              //                 AssetImage('images/facebook.png'),
-                              //           ),
-                              //         ),
-                              //       ),
-                              //       onTap: () {},
-                              //     ),
-                              //   ],
-                              // ),
                             ],
                           ),
                           Row(
@@ -193,7 +175,9 @@ class _LoginPageState extends State<LoginPage> {
                                     color: Color(0xFFFF627C),
                                   ),
                                 ),
-                                onPressed: () {},
+                                onPressed: () {
+
+                                },
                               ),
                             ],
                           ),
@@ -210,7 +194,6 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                             onPressed: () {
                               Navigator.of(context).pushNamed(RegisterPage.tag);
-                          
                             },
                           ),
                         ],
@@ -225,4 +208,31 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
+  changeThePage(BuildContext context) {
+    print(emailController.text);
+    print(passwordController.text);
+    _isLoading = true;
+    _presenter.loadLogin(
+        emailController.text, passwordController.text,"", "");
+  }
+  @override
+  void onLoadLoginComplete(LoginData items) {
+    print("onLoadLoginComplete ${items.u_name}");
+    PreferenceManager().setPref(Common.USER_ID,items.u_id);
+    PreferenceManager().setPref(Common.USER_NAME,items.u_name);
+    PreferenceManager().setPref(Common.USER_EMAIL,items.u_email);
+    PreferenceManager().setPref(Common.USER_IMAGE,items.u_image);
+
+    Route route = MaterialPageRoute(builder: (context) => SocialHome());
+    Navigator.pushReplacement(context, route);
+
+  }
+
+  @override
+  void onLoadLoginError(String error) {
+    print("onLoadLoginError ${error}");
+    // TODO: implement onLoadLoginError
+  }
 }
+
+
