@@ -1,291 +1,261 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:hack19/data/user_list_data.dart';
 
+import 'login.dart';
+import 'main_page.dart';
 import 'modules/user_list_presenter.dart';
 import 'utils/common.dart';
 import 'utils/preference.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
+import 'package:hack19/data/registration_data.dart';
+import 'package:hack19/login.dart';
+import 'package:hack19/main_page.dart';
 
+import 'modules/registration_presenter.dart';
+import 'package:http_parser/http_parser.dart';
 
-class UserListPage extends StatefulWidget {
+class UserProfilePage extends StatefulWidget {
+  static String tag = 'profile-page';
+
   @override
-  _UserListPageState createState() => _UserListPageState();
+  _UserProfilePageState createState() => _UserProfilePageState();
 }
 
-class _UserListPageState extends State<UserListPage>  implements UserViewContract{
+class _UserProfilePageState extends State<UserProfilePage> {
+  RegistrationPresenter _presenter;
 
-  UserListPresenter _presenter;
-  bool _isLoading = true;
-  List<UserListData> userList = List();
-  List<UserListData> mainUserList = List();
-
-  TextEditingController controller = new TextEditingController();
-  String id;
-  _UserListPageState() {
-
-    _presenter = UserListPresenter(this);
-  }
+  String _name, _email;
+  TextEditingController nameController, emailController;
+  String id, image;
 
   @override
   void initState() {
     super.initState();
+    _name = "Ravi Patel";
     getData();
-    controller.addListener(() {
-      userList.clear();
-      if(controller.text != ""){
-        for(UserListData model in mainUserList){
-          if(model.u_name.toLowerCase().contains(controller.text.toLowerCase())){
-            userList.add(model);
-          }
-        }
-      } else{
-        userList.addAll(mainUserList);
-      }
-      setState(() {
-
-      });
-      print(controller.text);
-    });
   }
+
   Future getData() async {
     print("getEventData");
-     id = await PreferenceManager().getPref(Common.USER_ID);
-    _isLoading = true;
-    _presenter.loadUserData(id);
+    id = await PreferenceManager().getPref(Common.USER_ID);
+    _name = await PreferenceManager().getPref(Common.USER_NAME);
+    _email = await PreferenceManager().getPref(Common.USER_EMAIL);
+    image = await PreferenceManager().getPref(Common.USER_IMAGE);
+    setState(() {
+      nameController = new TextEditingController(text: _name);
+      emailController = new TextEditingController(text: _email);
+    });
   }
+
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
-    createTile(UserListData friend) => Container(
-          decoration: const BoxDecoration(
-            border: Border(
-              bottom: BorderSide(color: Color(0xFF565973), width: 1.0),
+    return Scaffold(
+      backgroundColor: Color(0xFFFFFFFF),
+      body: Container(
+        child: ListView(
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(top: 50.0, left: 20),
+              child: Text(
+                'User profile',
+                style: TextStyle(
+                  color: Colors.blueAccent,
+                  fontSize: 22.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10.0),
-            child: Row(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: CircleAvatar(
-                    backgroundImage:
-                    NetworkImage(Common.IMAGE_PATH + friend.u_image),
-                  ),
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: <Widget>[
-                          Text(
-                            friend.u_name,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 18.0,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                Row(
-                  children: <Widget>[
-                    GestureDetector(
-                      onTap: (){
-                        if(friend.u_status == "0"){
-                          sendRequiest(friend.u_id);
-                        }
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Color(0xFFFFFFFF),
-                          borderRadius: BorderRadius.circular(50.0),
-                        ),
-                        child: Row(
-                          children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Text(friend.u_status == "2"?"Friend":friend.u_status == "1"?"Requiest Send":"Add friend"),
-                            ),
-                            friend.u_status == "0"?
-                            IconButton(
-                              color: Colors.blueAccent,
-                              icon: Icon(Icons.add),
-                              onPressed: () {},
-                            ):Container(),
-                          ],
-                        )
+            SizedBox(
+              height: 30,
+            ),
+            Padding(
+              padding: EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  GestureDetector(
+                    onTap: (){
+                      _pickingType = FileType.ANY;
+                      _openFileExplorer();
+                    },
+                    child: Container(
+                      child: CircleAvatar(
+                        maxRadius: 70,
+                        backgroundImage: NetworkImage(Common.IMAGE_PATH+image),
                       ),
                     ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
+                  ),
+                  SizedBox(
+                    height: 40.0,
+                  ),
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        TextFormField(
+                          controller: nameController,
+                          autocorrect: false,
+                          keyboardType: TextInputType.emailAddress,
+                          style: TextStyle(color: Colors.black),
+                          validator: (str) =>
+                              str.isEmpty ? 'Insert name' : null,
+                          onSaved: (str) => _name = str,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: const BorderRadius.all(
+                                Radius.circular(60.0),
+                              ),
+                            ),
+                            filled: true,
+                            fillColor: Color(0xFFFFFFFF),
+                            contentPadding: EdgeInsets.all(20.0),
+                            hintText: 'Enter Your Name',
+                            hintStyle: TextStyle(
+                              color: Colors.blueAccent,
+                              fontSize: 16.0,
+                              fontFamily: 'Josefin',
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 16.0,
+                        ),
+                        TextFormField(
+                          controller: emailController,
+                          autocorrect: false,
+                          keyboardType: TextInputType.emailAddress,
+                          style: TextStyle(color: Colors.black),
+                          validator: (str) =>
+                              !str.contains('@') ? 'Invalid E-Mail' : null,
+                          onSaved: (str) => _email = str,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: const BorderRadius.all(
+                                Radius.circular(60.0),
+                              ),
+                            ),
+                            filled: true,
+                            fillColor: Color(0xFFFFFFFF),
+                            contentPadding: EdgeInsets.all(20.0),
+                            hintText: 'serdar.plt21@gmail.com',
+                            hintStyle: TextStyle(
+                              color: Colors.blueAccent,
+                              fontSize: 16.0,
+                              fontFamily: 'Josefin',
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: <Widget>[
+                            RaisedButton(
+                              color: Colors.blueAccent,
+                              padding:
+                                  EdgeInsets.fromLTRB(46.0, 16.0, 46.0, 16.0),
+                              child: Text(
+                                'Update',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: 'Josefin',
+                                  fontSize: 22.0,
+                                ),
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30.0),
+                              ),
+                              onPressed: () {
+                                var form = _formKey.currentState;
 
-    final liste = SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      physics: const BouncingScrollPhysics(),
-      child: Padding(
-        padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: userList.map((book) => createTile(book)).toList(),
-        ),
-      ),
-    );
-
-    return Scaffold(
-      backgroundColor: Color(0xFFF5F5F5),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.only(top:50.0,left: 20),
-            child: Text(
-              'Users',
-              style: TextStyle(
-                color: Colors.blueAccent,
-                fontSize: 22.0,
-                fontWeight: FontWeight.bold,
+                                if (form.validate()) {
+                                  form.save();
+                                  updateProfile();
+                                } else {
+                                  print("error");
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-            child: TextField(
-              controller: controller,
-              decoration: InputDecoration(
-                  hintText: 'Search your friends...',
-                  hintStyle: TextStyle(
-                    color: Colors.black38,
-                  ),
-                  filled: true,
-                  fillColor: Color(0xFFFFFFFF),
-                  suffixIcon: Icon(
-                    Icons.search,
-                    color: Colors.pinkAccent
-                  ),
-                  border: InputBorder.none),
-            ),
-          ),
-          Flexible(
-            child: liste,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Future sendRequiest(String reciever_id) async {
-    var response = await http.post(
-      // Encode URl
-      Uri.encodeFull("${Common.API}?ws_friend_request"),
-      // only accept json response
-      headers: {
-        "Accept": "Application/json"
-      },
-      body: {
-        "send_id": id,
-        "reciever_id": reciever_id
-      },
-    );
-    print(response.body);
-    setState(() {
-      var convertDataToJson = json.decode(response.body);
-      var success = convertDataToJson['success'];
-      print(success);
-      // ignore: unused_local_variable
-      var message = convertDataToJson['message'];
-      if (success) {
-        _presenter.loadUserData(id);
-      } else {
-        final snackBar = SnackBar(content: Text(message));
-        Scaffold.of(context).showSnackBar(snackBar);
+  FileType _pickingType;
+  String _fileName = '';
+  String _path = '';
+  bool _hasValidMime = false;
+
+  void _openFileExplorer() async {
+    if (_pickingType != FileType.CUSTOM || _hasValidMime) {
+      try {
+        _path = await FilePicker.getFilePath(type: _pickingType);
+      } on Exception catch (e) {
+        print("Unsupported operation" + e.toString());
       }
-    });
+
+      if (!mounted) return;
+      setState(() {
+        _fileName = _path != null ? _path.split('/').last : '...';
+      });
+    }
   }
 
-  @override
-  void onLoadUserListComplete(List<UserListData> items) {
-    print("onLoadUserListComplete"+items.toString());
-    userList.clear();
-    mainUserList.clear();
-    userList.addAll(items);
-    mainUserList.addAll(items);
-    setState(() {
-      _isLoading = false;
-    });
-  }
+  Future updateProfile() async {
+    Map<String, String> map = {"Accept": "Application/json"};
+    Uri uri = Uri.parse('${Common.API}?ws_user_update');
+    http.MultipartRequest request = http.MultipartRequest('POST', uri);
+    request.headers.addAll(map);
+    request.fields['u_id'] = id;
+    request.fields['u_name'] = nameController.text;
+    request.fields['u_email'] = emailController.text;
+    if (_path != "") {
+      request.files.add(await http.MultipartFile.fromPath('file', _path,
+          contentType: new MediaType('application', 'x-tar')));
+    }
+    http.StreamedResponse response = await request.send();
 
-  @override
-  void onLoadUserListError(String error) {
-    print("onLoadUserListError"+error);
-  }
-}
-
-class OnlinePersonAction extends StatelessWidget {
-  final String personImagePath;
-  final Color actColor;
-  const OnlinePersonAction({
-    Key key,
-    this.personImagePath,
-    this.actColor,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      overflow: Overflow.visible,
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.only(right: 8.0),
-          child: Container(
-            padding: const EdgeInsets.all(3.4),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(50.0),
-              border: Border.all(
-                width: 2.0,
-                color: Colors.pinkAccent,
-              ),
-            ),
-            child: Container(
-              width: 54.0,
-              height: 54.0,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(50.0),
-                image: DecorationImage(
-                  image: AssetImage(personImagePath),
-                ),
-              ),
-            ),
-          ),
-        ),
-        Positioned(
-          top: 10.0,
-          right: 10.0,
-          child: Container(
-            width: 10.0,
-            height: 10.0,
-            decoration: BoxDecoration(
-              color: actColor,
-              borderRadius: BorderRadius.circular(5.0),
-              border: Border.all(
-                width: 1.0,
-                color: const Color(0x00000000),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
+    if (response.statusCode == 200) {
+      response.stream.transform(utf8.decoder).listen((value) {
+        setState(() {
+          print(value);
+          var convertDataToJson = json.decode(value);
+          var success = convertDataToJson['success'];
+          print(success);
+          // ignore: unused_local_variable
+          var message = convertDataToJson['message'];
+          var img = (convertDataToJson['u_image']);
+          if (success) {
+            if (img != null && img != "") {
+              PreferenceManager().setPref(Common.USER_IMAGE, convertDataToJson['u_image']);
+            }
+            PreferenceManager().setPref(Common.USER_NAME, nameController.text);
+            PreferenceManager().setPref(Common.USER_EMAIL, emailController.text);
+            Navigator.pop(context);
+          } else {
+            final snackBar = SnackBar(content: Text(message));
+            Scaffold.of(context).showSnackBar(snackBar);
+          }
+        });
+      });
+    }
   }
 }

@@ -5,6 +5,7 @@ import 'package:hack19/login.dart';
 import 'package:hack19/main_page.dart';
 import 'package:hack19/register.dart';
 
+import 'user_profile_list.dart';
 import 'utils/common.dart';
 import 'utils/preference.dart';
 
@@ -20,6 +21,7 @@ class _SocialAppState extends State<SocialApp> {
     LoginPage.tag: (context) => LoginPage(),
     SocialHome.tag: (context) => SocialHome(),
     RegisterPage.tag: (context) => RegisterPage(),
+    UserProfilePage.tag: (context) => UserProfilePage(),
   };
   @override
   Widget build(BuildContext context) {

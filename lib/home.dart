@@ -3,10 +3,12 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:hack19/data/story_list_data.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'data/feed_list_data.dart';
 import 'modules/feed_list_presenter.dart';
+import 'modules/story_list_presenter.dart';
 import 'utils/common.dart';
 import 'utils/date_helper.dart';
 import 'utils/preference.dart';
@@ -18,16 +20,20 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> implements FeedViewContract {
-  FeedListPresenter _presenter;
+class _HomePageState extends State<HomePage>
+    implements FeedViewContract, StoryViewContract {
+  FeedListPresenter _feedPresenter;
+  StoryListPresenter _storyPresenter;
   bool _isLoading = true;
   List<FeedListData> feedList = List();
+  List<StoryListData> storyList = List();
   TextEditingController controller = TextEditingController();
   String id;
-  String _platformVersion;
+  String user_image = "";
 
   _HomePageState() {
-    _presenter = FeedListPresenter(this);
+    _feedPresenter = FeedListPresenter(this);
+    _storyPresenter = StoryListPresenter(this);
   }
 
   @override
@@ -39,6 +45,34 @@ class _HomePageState extends State<HomePage> implements FeedViewContract {
     }
   }
 
+  getUser() async {
+    Map<String, String> map = {"Accept": "Application/json"};
+    Uri uri = Uri.parse('${Common.API}?ws_user_data');
+    http.MultipartRequest request = http.MultipartRequest('POST', uri);
+    request.headers.addAll(map);
+    request.fields['u_id'] = id;
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      response.stream.transform(utf8.decoder).listen((value) {
+        setState(() {
+          print(value);
+          var convertDataToJson = json.decode(value);
+          var success = convertDataToJson['success'];
+          print(success);
+          var message = convertDataToJson['message'];
+          if (success) {
+            controller.text = "";
+            _feedPresenter.loadUserData(id);
+          } else {
+            final snackBar = SnackBar(content: Text(message));
+            Scaffold.of(context).showSnackBar(snackBar);
+          }
+        });
+      });
+    }
+  }
+
   requestPermission() async {
     Map<PermissionGroup, PermissionStatus> permissions =
         await PermissionHandler().requestPermissions([PermissionGroup.storage]);
@@ -46,9 +80,13 @@ class _HomePageState extends State<HomePage> implements FeedViewContract {
 
   Future getData() async {
     print("getEventData");
+    setState(() {});
     id = await PreferenceManager().getPref(Common.USER_ID);
+    user_image = await PreferenceManager().getPref(Common.USER_IMAGE);
     _isLoading = true;
-    _presenter.loadUserData(id);
+    getUser();
+    _feedPresenter.loadUserData(id);
+    _storyPresenter.loadUserData(id);
   }
 
   @override
@@ -112,17 +150,17 @@ class _HomePageState extends State<HomePage> implements FeedViewContract {
                   ),
                   feed.file != ""
                       ? Container(
-                    width: double.maxFinite,
-                    height: 150,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: NetworkImage(Common.IMAGE_PATH + feed.file,scale: 11.0),
-                      ),
-                    ),
-                  )
+                          width: double.maxFinite,
+                          height: 150,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: NetworkImage(Common.IMAGE_PATH + feed.file,
+                                  scale: 11.0),
+                            ),
+                          ),
+                        )
                       : Container(),
-
                   SizedBox(height: 6.0),
                   Text(
                     feed.title,
@@ -202,6 +240,9 @@ class _HomePageState extends State<HomePage> implements FeedViewContract {
             ),
           ),
         );
+    createStory(StoryListData feed) => PersonStatus(
+          model: feed,
+        );
     return Scaffold(
       backgroundColor: Color(0xFFF5F5F5),
       body: Container(
@@ -224,32 +265,7 @@ class _HomePageState extends State<HomePage> implements FeedViewContract {
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Row(
-                  children: <Widget>[
-                    new PersonStatus(
-                      personImg: 'images/user5.jpg',
-                    ),
-                    new PersonStatus(
-                      personImg: 'images/user7.jpg',
-                    ),
-                    new PersonStatus(
-                      personImg: 'images/user6.jpg',
-                    ),
-                    new PersonStatus(
-                      personImg: 'images/user1.jpg',
-                    ),
-                    new PersonStatus(
-                      personImg: 'images/user2.jpg',
-                    ),
-                    new PersonStatus(
-                      personImg: 'images/user3.jpg',
-                    ),
-                    new PersonStatus(
-                      personImg: 'images/user4.jpg',
-                    ),
-                    new PersonStatus(
-                      personImg: 'images/user5.jpg',
-                    ),
-                  ],
+                  children: storyList.map((book) => createStory(book)).toList(),
                 ),
               ),
             ),
@@ -268,7 +284,8 @@ class _HomePageState extends State<HomePage> implements FeedViewContract {
                           width: 60.0,
                           height: 60.0,
                           child: CircleAvatar(
-                            backgroundImage: AssetImage('images/user8.jpg'),
+                            backgroundImage:
+                                NetworkImage(Common.IMAGE_PATH + user_image),
                           ),
                         ),
                       ),
@@ -436,7 +453,7 @@ class _HomePageState extends State<HomePage> implements FeedViewContract {
             controller.text = "";
             final snackBar = SnackBar(content: Text(message));
             Scaffold.of(context).showSnackBar(snackBar);
-            _presenter.loadUserData(id);
+            _feedPresenter.loadUserData(id);
           } else {
             final snackBar = SnackBar(content: Text(message));
             Scaffold.of(context).showSnackBar(snackBar);
@@ -459,14 +476,28 @@ class _HomePageState extends State<HomePage> implements FeedViewContract {
   void onLoadFeedListError(String error) {
     print("onLoadFeedListComplete" + error);
   }
+
+  @override
+  void onLoadStoryListComplete(List<StoryListData> items) {
+    print("onLoadStoryListComplete" + items.toString());
+    storyList.clear();
+    setState(() {
+      storyList.addAll(items);
+    });
+  }
+
+  @override
+  void onLoadStoryListError(String error) {
+    print("onLoadStoryListError" + error);
+  }
 }
 
 class PersonStatus extends StatelessWidget {
-  final String personImg;
+  final StoryListData model;
 
   const PersonStatus({
     Key key,
-    this.personImg,
+    this.model,
   }) : super(key: key);
 
   @override
@@ -485,13 +516,19 @@ class PersonStatus extends StatelessWidget {
         child: Container(
           width: 54.0,
           height: 54.0,
+          child: CircleAvatar(
+            backgroundImage: NetworkImage(Common.IMAGE_PATH + model.file),
+          ),
+        ), /*Container(
+          width: 54.0,
+          height: 54.0,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(50.0),
             image: DecorationImage(
-              image: AssetImage(personImg),
+              image: NetworkImage(Common.IMAGE_PATH+model.u_image),
             ),
           ),
-        ),
+        ),*/
       ),
     );
   }

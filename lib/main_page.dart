@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hack19/chats.dart';
 import 'package:hack19/home.dart';
+import 'package:hack19/setting_page.dart';
 import 'package:hack19/user_list.dart';
+import 'package:hack19/user_profile_list.dart';
 
 class SocialHome extends StatefulWidget {
   static String tag = 'ana-sayfa';
@@ -20,7 +22,7 @@ class _SocialHomeState extends State<SocialHome> {
           children: <Widget>[
             new HomePage(),
             new UserListPage(),
-            new UserListPage(),
+            new SettingPage(),
             // new Container(color: Colors.green),
             // new Container(color: Colors.blue),
           ],

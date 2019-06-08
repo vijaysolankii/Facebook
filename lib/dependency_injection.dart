@@ -1,9 +1,13 @@
 import 'package:hack19/prod/feed_list_data_prod.dart';
+import 'package:hack19/prod/request_list_data_prod.dart';
+import 'package:hack19/prod/story_list_data_prod.dart';
 import 'package:hack19/prod/user_list_data_prod.dart';
 
 import 'data/feed_list_data.dart';
 import 'data/login_data.dart';
 import 'data/registration_data.dart';
+import 'data/request_list_data.dart';
+import 'data/story_list_data.dart';
 import 'data/user_list_data.dart';
 import 'prod/login_data_prod.dart';
 import 'prod/registration_data_prod.dart';
@@ -37,5 +41,11 @@ class Injector {
   }
   FeedListRepository get feedlistRepository {
     return new ProdFeedListRepository();
+  }
+  StoryListRepository get storylistRepository {
+    return new ProdStoryListRepository();
+  }
+  RequestListRepository get requestlistRepository {
+    return new ProdRequestListRepository();
   }
 }
