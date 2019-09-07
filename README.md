@@ -1,6 +1,7 @@
 # hack19
 
 A new Flutter project.
+This Project was developed in the #Hack19 Hackathon which was arrenged by the Flutter Orgnization.
 
 ## Getting Started
 
